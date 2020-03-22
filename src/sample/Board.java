@@ -16,7 +16,6 @@ import javafx.stage.StageStyle;
 public class Board {
 
     private Image imageBack = new Image("sample/resource/tictactoeBoard.png");
-    //private Image welcomeImage = new Image("sample/resource/welcomeBoard.png");
     private Label welcomeLabel = new Label("Welcome to Tic-Tac-Toe");
     private Button buttonPlay = new Button();
 
