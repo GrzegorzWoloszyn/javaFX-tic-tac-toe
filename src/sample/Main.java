@@ -5,6 +5,8 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -64,13 +66,13 @@ public class Main extends Application {
         launch(args);
     }
 
-
     public static void close() {
         Platform.exit();
         System.exit(0);
     }
 
     public void newGame() {
+
     }
 
     public Parent createContent() throws Exception {
@@ -81,10 +83,9 @@ public class Main extends Application {
                 Tile tile = new Tile();
                 tile.setTranslateX(col * 198);
                 tile.setTranslateY(row * 198);
-                tile.setOwnerPlayer(Owner.EMPTY);
                 root.getChildren().add(tile);
                 board[col][row] = tile;
-
+                board[col][row].setOwnerPlayer(Owner.EMPTY);
             }
         }
         //horizontal
@@ -160,7 +161,6 @@ public class Main extends Application {
 
             return tiles[0].getValue().equals(tiles[1].getValue()) &&
                     tiles[0].getValue().equals(tiles[2].getValue());
-
         }
 
         public String getWinnerSymbol(){
@@ -185,7 +185,7 @@ public class Main extends Application {
         return oPoints;
     }
 
-    public class Tile extends StackPane {
+    public class Tile extends StackPane implements EventHandler<ActionEvent> {
         public Text text = new Text();
         private Owner ownerPlayer = Owner.EMPTY;
 
@@ -195,9 +195,12 @@ public class Main extends Application {
             chart.setStrokeWidth(10);
             setAlignment(Pos.CENTER);
             getChildren().addAll(chart, text);
-            makeMove();
             text.setFont(new Font(80));
             text.setFill(Color.YELLOW);
+            makeMove();
+            cpuMove(board);
+
+
 
 //            setOnMouseClicked(mouseEvent -> {
 //                if(!playable)
@@ -227,21 +230,21 @@ public class Main extends Application {
         }
 
         public void makeMove() {
-            setOnMouseClicked(mouseEvent -> {
+           setOnMouseClicked(mouseEvent -> {
                 if(!playable)
                     return;
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && !(ownerPlayer.equals(Owner.O))) {
-                    if (!turnXOrY) {
-                        return;
-                    }
-                    else {
-                        moveX++;
-                        drawX();
-                        turnXOrY = false;
-                        checkWinner();
-                    }
-                }
-                else if (mouseEvent.getButton() == MouseButton.SECONDARY && !(ownerPlayer.equals(Owner.X))) {
+                        if (mouseEvent.getButton() == MouseButton.PRIMARY && !(getValue().equals("O"))) {
+                                if (!turnXOrY) {
+                                    return;
+                                }
+                                else {
+                                    moveX++;
+                                    drawX();
+                                    turnXOrY = false;
+                                    checkWinner();
+                                }
+                        }
+                        else if (mouseEvent.getButton() == MouseButton.SECONDARY && !(getValue().equals("X"))) {
                             if (turnXOrY)
                                 return;
                             else {
@@ -251,45 +254,33 @@ public class Main extends Application {
                                 checkWinner();
                             }
                         }
-            });
+                });
+    }
 
-//                else if (mouseEvent.getButton() == MouseButton.SECONDARY && !(ownerPlayer.equals(Owner.X))) {
-//                            if (turnXOrY)
-//                                return;
-//                            else {
-//                                moveO++;
-//                                drawO();
-//                                turnXOrY = true;
-//                                checkWinner();
-//                            }
-//                        }
 
-        }
-
-        public void cpuMove(Tile[][] board) throws Exception{
-            List<Tile> remainedBoard = new ArrayList<>();
-            for(int row = 0; row < 3; row++) {
-                for (int col = 0; col < 3; col++) {
-                    if(board[row][col].getOwnerPlayer().equals(Owner.EMPTY)) {
-                        remainedBoard.add(board[row][col]);
-                    }
+        public void cpuMove(Tile[][] tiles) throws Exception {
+            List <Tile> remainedTiles = new ArrayList<>();
+            for(int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if(tiles[i][j].getOwnerPlayer().equals(Owner.EMPTY) && tiles[i][j] != null ) {
+                        remainedTiles.add(tiles[i][j]);
+                    };
                 }
             }
-            if (remainedBoard.size() > 0) {
-                int t = RANDOM.nextInt(remainedBoard.size());
-                Tile drawnTile = remainedBoard.get(t);
-                drawO();
+            if (remainedTiles.size() > 0) {
+                int a = RANDOM.nextInt(remainedTiles.size());
+                Tile chosenTile = remainedTiles.get(a);
+                chosenTile.drawO();
+                chosenTile.setOwnerPlayer(Owner.O);
             }
-            checkWinner();
         }
 
         public void drawX() {
             text.setText("X");
-            setAlignment(Pos.CENTER);
         }
 
         public void drawO() {
-            setAlignment(Pos.CENTER);
+
             text.setText("O");
         }
 
@@ -312,6 +303,20 @@ public class Main extends Application {
         public void setOwnerPlayer(Owner ownerPlayer) {
             this.ownerPlayer = ownerPlayer;
         }
+
+        @Override
+        public void handle(ActionEvent actionEvent) {
+
+            if (actionEvent.getSource() == MouseButton.PRIMARY && !(getValue().equals("O")))
+                actionEvent.getSource();
+            moveX++;
+            drawX();
+            turnXOrY = false;
+            checkWinner();
+
+        }
     }
+
+
 
 }
