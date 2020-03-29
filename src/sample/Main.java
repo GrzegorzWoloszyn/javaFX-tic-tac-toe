@@ -37,7 +37,7 @@ public class Main extends Application {
     public boolean playable = true;
     public Tile[][] board = new Tile[3][3];
     public List<Round> rounds = new ArrayList<>();
-    public static MenuBar menu = new MenuBar();
+    public MenuBar menu = new MenuBar();
     public int moveX = 0;
     public int moveO = 0;
     public static int xPoints = 0;
@@ -52,14 +52,6 @@ public class Main extends Application {
         primaryStage.setTitle("TIC-TAC-TOE");
         primaryStage.show();
 
-        Menu menuFile = new Menu("File");
-        MenuItem exit = new MenuItem("Exit");
-        Menu menuGame = new Menu("New Game");
-        menuGame.setOnAction(actionEvent -> newGame());
-        exit.setOnAction(actionEvent -> Main.close());
-        menuFile.getItems().add(exit);
-        menu.getMenus().addAll(menuFile, menuGame);
-        root.getChildren().add(menu);
     }
 
     public static void main(String[] args) {
@@ -72,7 +64,11 @@ public class Main extends Application {
     }
 
     public void newGame() {
-
+        try {
+            createContent();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Parent createContent() throws Exception {
@@ -88,6 +84,17 @@ public class Main extends Application {
                 board[col][row].setOwnerPlayer(Owner.EMPTY);
             }
         }
+
+
+        Menu menuFile = new Menu("File");
+        MenuItem exit = new MenuItem("Exit");
+        Menu menuGame = new Menu("New Game");
+        menuFile.getItems().add(exit);
+        menu.getMenus().addAll(menuFile, menuGame);
+        exit.setOnAction(actionEvent -> Main.close());
+        menuGame.setOnAction(actionEvent -> newGame());
+        root.getChildren().add(menu);
+
         //horizontal
         for(int y = 0; y < 3; y++) {
             rounds.add(new Round(board[0][y], board[1][y], board[2][y]));
@@ -194,13 +201,13 @@ public class Main extends Application {
             chart.setStroke(Color.WHITE);
             chart.setStrokeWidth(10);
             setAlignment(Pos.CENTER);
-            getChildren().addAll(chart, text);
+
             text.setFont(new Font(80));
             text.setFill(Color.YELLOW);
+            getChildren().addAll(chart, text);
+
             makeMove();
-            cpuMove(board);
-
-
+            //cpuMove(board);
 
 //            setOnMouseClicked(mouseEvent -> {
 //                if(!playable)
