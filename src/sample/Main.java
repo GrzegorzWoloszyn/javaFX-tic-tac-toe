@@ -22,52 +22,40 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import sample.resource.Owner;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Main extends Application {
 
+    public Tile[] tiles;
     public Pane root = new Pane();
-    public boolean turnXOrY = true;
-    public boolean playable = true;
+    public boolean playerXMovement = true;
+    public boolean gamePlayable = true;
     public Tile[][] board = new Tile[3][3];
     public List<Round> rounds = new ArrayList<>();
     public MenuBar menu = new MenuBar();
-    public int moveX = 0;
-    public int moveO = 0;
-    public static int xPoints = 0;
-    public static int oPoints = 0;
+    public int numberOfXMoves;
+    public int numberOfOMoves;
+    public int xPlayerPoints = 0;
+    public int oPlayerPoints = 0;
     private static final Random RANDOM = new Random();
-    Text text;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
         primaryStage.initStyle(StageStyle.DECORATED);
         primaryStage.setScene(new Scene(createContent()));
         primaryStage.setTitle("TIC-TAC-TOE");
         primaryStage.show();
-
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 
-    public static void close() {
+    public static void exit() {
         Platform.exit();
         System.exit(0);
-    }
-
-    public void newGame() {
-        try {
-            createContent();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public Parent createContent() throws Exception {
@@ -80,29 +68,31 @@ public class Main extends Application {
                 tile.setTranslateY(row * 198);
                 root.getChildren().add(tile);
                 board[col][row] = tile;
-                //board[col][row].text.setText(" ");
             }
         }
-
 
         Menu menuFile = new Menu("File");
         MenuItem exit = new MenuItem("Exit");
         Menu menuGame = new Menu("New Game");
         menuFile.getItems().add(exit);
         menu.getMenus().addAll(menuFile, menuGame);
-        exit.setOnAction(actionEvent -> Main.close());
-        menuGame.setOnAction(actionEvent -> newGame());
+        exit.setOnAction(actionEvent -> Main.exit());
+        menuGame.setOnAction(actionEvent -> {
+            try {
+                Tile tile = new Tile();
+                tile.clear(board, tiles);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
         root.getChildren().add(menu);
 
-        //horizontal
         for(int y = 0; y < 3; y++) {
             rounds.add(new Round(board[0][y], board[1][y], board[2][y]));
         }
-        //vertical
         for(int x = 0; x < 3; x++) {
             rounds.add(new Round(board[x][0], board[x][1], board[x][2]));
         }
-        //diagonals
         rounds.add(new Round(board[0][0], board[1][1], board[2][2]));
         rounds.add(new Round(board[0][2], board[1][1], board[2][0]));
 
@@ -111,21 +101,40 @@ public class Main extends Application {
 
     public void checkWinner() {
         for (Round round : rounds) {
-            if(round.isComplete() || (moveO + moveX) == 9) {
-                playable = false;
-                playCongratsAnimation(round);
+            if(!round.isComplete()) {
+                gamePlayable = true;
+            } else if(!round.isComplete() && (numberOfOMoves + numberOfXMoves) == 9) {
+                gamePlayable = false;
+                playCongratulationAnimation(round);
                 break;
             }
-            playable = true;
+            else if(round.isComplete()) {
+                gamePlayable = false;
+                playCongratulationAnimation(round);
+                break;
+            }
+
         }
     }
 
-    public void playCongratsAnimation(Round round) {
-        Text winText = new Text("The winner is: " + round.getWinnerSymbol() + " , congratulations! Rematch?");
+    public void playCongratulationAnimation(Round round) {
+        if (!round.isComplete()) {
+            return;
+        }else {
+            gamePlayable = false;
+            prepareAnimationLine(round);
+            prepareGameStats(round);
+        }
+    }
+
+    public void prepareGameStats(Round round) {
+        String winnerSymbol = round.getWinnerSymbol();
+        Text winText = new Text("The winner is: " + winnerSymbol + " , congratulations! Rematch?");
         winText.setFont(new Font(25));
         winText.setFill(Color.DARKGOLDENROD);
-        Text scoreX = new Text("X points: " + statsX(round));
-        Text scoreO = new Text("O points: " + statsO(round));
+
+        Text scoreX = new Text("X points: " + getStatsX(round));
+        Text scoreO = new Text("O points: " + getStatsO(round));
         scoreX.setFont(Font.font(25));
         scoreO.setFont(Font.font(25));
         scoreX.setFill(Color.BLACK);
@@ -134,28 +143,29 @@ public class Main extends Application {
         scoreO.setLayoutY(550);
         scoreO.setLayoutX(10);
         scoreX.setLayoutX(10);
+
         root.getChildren().addAll(winText, scoreO, scoreX);
+    }
 
-        if (round.isComplete()) {
-            Line line = new Line();
-            line.setStartX(round.tiles[0].getCentreX());
-            line.setStartY(round.tiles[0].getCentreY());
-            line.setEndX(round.tiles[0].getCentreX());
-            line.setEndY(round.tiles[0].getCentreY());
+    public void prepareAnimationLine(Round round) {
 
-            root.getChildren().add(line);
+        Line line = new Line();
+        line.setStartX(round.tiles[0].getCentreX());
+        line.setStartY(round.tiles[0].getCentreY());
+        line.setEndX(round.tiles[0].getCentreX());
+        line.setEndY(round.tiles[0].getCentreY());
 
-            Timeline timeline = new Timeline();
-            timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(1),
-                    new KeyValue(line.endXProperty(), round.tiles[2].getCentreX()),
-                    new KeyValue(line.endYProperty(), round.tiles[2].getCentreY())));
+        root.getChildren().add(line);
 
-            timeline.play();
-        }
+        Timeline timeline = new Timeline();
+        timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(1),
+                new KeyValue(line.endXProperty(), round.tiles[2].getCentreX()),
+                new KeyValue(line.endYProperty(), round.tiles[2].getCentreY())));
+
+        timeline.play();
     }
 
     public class Round {
-
         public Tile[] tiles;
         public Round(Tile... tiles) { // 3 elements: Tile[0] is horizontal, Tile[1] is vertical, Tile [2] is diagonal
             this.tiles = tiles;
@@ -164,32 +174,39 @@ public class Main extends Application {
         public boolean isComplete() {
             if(tiles[0].getValue().isEmpty() || tiles[1].getValue().isEmpty() || tiles[2].getValue().isEmpty()) {
                 return false;
-            } else if(tiles[0].getValue().equals(tiles[1].getValue()) &&
-                    tiles[0].getValue().equals(tiles[2].getValue())) {
-                return true;
-            } else
-            return false;
+            } else return tiles[0].getValue().equals(tiles[1].getValue()) &&
+                    tiles[0].getValue().equals(tiles[2].getValue());
         }
 
         public String getWinnerSymbol(){
             String theWinner = "DRAW";
-            if (isComplete() || (moveO + moveX) == 9) {
-                theWinner =  tiles[0].getValue();
+            if (isComplete() || (numberOfOMoves + numberOfXMoves) == 9) {
+                theWinner = tiles[0].getValue();
             }
             return theWinner;
         }
     }
 
+    public int getStatsX(Round round) {
+        return statsX(round);
+    }
+
+    public int getStatsO(Round round) {
+        return statsO(round);
+    }
+
     public int statsX(Round round) {
-        if(round.getWinnerSymbol().equals("X"))
-            xPoints ++;
-            return xPoints;
+        if(round.getWinnerSymbol().equals("X")) {
+            xPlayerPoints++;
+        }
+        return xPlayerPoints;
     }
 
     public int statsO(Round round) {
-        if(round.getWinnerSymbol().equals("O"))
-            oPoints++;
-        return oPoints;
+        if(round.getWinnerSymbol().equals("O")) {
+            oPlayerPoints++;
+        }
+        return oPlayerPoints;
     }
 
     public class Tile extends StackPane {
@@ -198,9 +215,8 @@ public class Main extends Application {
         public Tile() throws Exception {
             Rectangle chart = new Rectangle(200, 200, Color.GREEN);
             chart.setStroke(Color.WHITE);
-            chart.setStrokeWidth(10);
+            chart.setStrokeWidth(8);
             setAlignment(Pos.CENTER);
-
             text.setFont(new Font(80));
             text.setFill(Color.YELLOW);
             getChildren().addAll(chart, text);
@@ -208,39 +224,44 @@ public class Main extends Application {
         }
 
         public void makeMove() {
-            if(!playable)
+            if(!gamePlayable)
                 return;
            setOnMouseClicked(mouseEvent -> {
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && !(getValue().equals("O"))) {
-                    if (!turnXOrY) {
+                if (mouseEvent.getButton() == MouseButton.PRIMARY && !(getValue().equals("O")) && !(getValue().equals("X"))) {
+                    if (!playerXMovement) {
                         return;
                     }
                     else {
-                        moveX++;
-                        drawX();
-                        turnXOrY = false;
-                        checkWinner();
-                        text.setText("X");
+                        playerMove();
                     }
                 }
+               if(!gamePlayable)
+                   return;
                try {
                    cpuMove(board);
                } catch (Exception e) {
                    e.printStackTrace();
                }
-
           });
     }
 
+        public void playerMove() {
+            numberOfXMoves++;
+            drawX();
+            playerXMovement = false;
+            checkWinner();
+            text.setText("X");
+        }
+
         public void cpuMove(Tile[][] tiles) throws Exception {
-            if(turnXOrY)
+            if(playerXMovement)
                 return;
             List <Tile> remainedTiles = new ArrayList<>();
             for(int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     if(tiles[i][j] != null && tiles[i][j].getValue().isEmpty()) {
                         remainedTiles.add(tiles[i][j]);
-                    };
+                    }
                 }
             }
             if (remainedTiles.size() > 0) {
@@ -248,10 +269,31 @@ public class Main extends Application {
                 Tile chosenTile = remainedTiles.get(a);
                 chosenTile.drawO();
                 chosenTile.text.setText("O");
-                moveO++;
+                numberOfOMoves++;
+                playerXMovement = true;
                 checkWinner();
-                turnXOrY = true;
             }
+        }
+
+        public void clear(Tile[][] board, Tile[] tiles ) throws Exception {
+            for(int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    board[i][j] = new Tile();
+                    board[i][j].text.setText(" ");
+                    board[i][j].getChildren().clear(); // tutaj czyszczę board
+                    root.getChildren().clear();     // tutaj czyszczę children dla root
+                }
+            }
+            for (int i = 0; i < tiles.length; i++) {
+                tiles[i].text.setText(" ");
+            }
+            rounds = new ArrayList<>();
+            gamePlayable = true;
+            playerXMovement = true;
+            boolean gamePlayable = true;
+            MenuBar menu = new MenuBar();
+            int numberOfXMoves = 0;
+            int numberOfOMoves = 0;
         }
 
         public void drawX() {
@@ -259,7 +301,6 @@ public class Main extends Application {
         }
 
         public void drawO() {
-
             text.setText("O");
         }
 
