@@ -6,7 +6,6 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -20,7 +19,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,29 +26,37 @@ import java.util.Random;
 
 public class Main extends Application {
 
-    public Tile[] tiles;
     public Pane root = new Pane();
     public boolean playerXMovement = true;
     public boolean gamePlayable = true;
     public Tile[][] board = new Tile[3][3];
     public List<Round> rounds = new ArrayList<>();
     public MenuBar menu = new MenuBar();
-    public int numberOfXMoves;
-    public int numberOfOMoves;
+    public int numberOfXMoves = 0;
+    public int numberOfOMoves = 0;
     public int xPlayerPoints = 0;
     public int oPlayerPoints = 0;
     private static final Random RANDOM = new Random();
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        primaryStage.initStyle(StageStyle.DECORATED);
-        primaryStage.setScene(new Scene(createContent()));
-        primaryStage.setTitle("TIC-TAC-TOE");
-        primaryStage.show();
+    public void start(Stage primaryStage) {
+        startGame(primaryStage);
+//        primaryStage.initStyle(StageStyle.DECORATED);
+//        primaryStage.setScene(new Scene(createContent()));
+//        primaryStage.setTitle("TIC-TAC-TOE");
+//        primaryStage.show();
     }
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    void startGame(Stage stage) {
+        stage.setScene(new Scene(printBoard(stage)));
+        createMenu(stage);
+        combos();
+        stage.setTitle("TIC-TAC-TOE");
+        stage.show();
     }
 
     public static void exit() {
@@ -58,7 +64,27 @@ public class Main extends Application {
         System.exit(0);
     }
 
-    public Parent createContent() throws Exception {
+    public void restartGame(Tile[][] board, Stage stage) {
+        for(int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                root.getChildren().clear();
+                board[i][j].getChildren().clear();
+                board[i][j].text.setText(" ");
+
+            }
+        }
+
+        rounds = new ArrayList<>();
+        gamePlayable = true;
+        playerXMovement = true;
+        printBoard(stage);
+        createMenu(stage);
+        combos();
+        stage.setTitle("TIC-TAC-TOE");
+        stage.show();
+    }
+
+    public void createGameBoard(Stage stage) {
         root.setPrefSize(608, 608);
         root.setLayoutY(30);
         for(int row = 0; row < 3; row++) {
@@ -70,23 +96,39 @@ public class Main extends Application {
                 board[col][row] = tile;
             }
         }
+        //       createMenu(stage);
+//
+//        Menu menuFile = new Menu("File");
+//        MenuItem exit = new MenuItem("Exit");
+//        Menu menuGame = new Menu("New Game");
+//        menuFile.getItems().add(exit);
+//        menuFile.getItems().add(menuGame);
+//        menu.getMenus().addAll(menuFile);
+//        exit.setOnAction(actionEvent -> Main.exit());
+//        menuGame.setOnAction(actionEvent -> {
+//            restartGame(board, stage);
+//
+//        });
+//
+//        root.getChildren().add(menu);
 
-        Menu menuFile = new Menu("File");
-        MenuItem exit = new MenuItem("Exit");
-        Menu menuGame = new Menu("New Game");
-        menuFile.getItems().add(exit);
-        menu.getMenus().addAll(menuFile, menuGame);
-        exit.setOnAction(actionEvent -> Main.exit());
-        menuGame.setOnAction(actionEvent -> {
-            try {
-                Tile tile = new Tile();
-                tile.clear(board, tiles);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        root.getChildren().add(menu);
+//        for(int y = 0; y < 3; y++) {
+//            rounds.add(new Round(board[0][y], board[1][y], board[2][y]));
+//        }
+//        for(int x = 0; x < 3; x++) {
+//            rounds.add(new Round(board[x][0], board[x][1], board[x][2]));
+//        }
+//        rounds.add(new Round(board[0][0], board[1][1], board[2][2]));
+//        rounds.add(new Round(board[0][2], board[1][1], board[2][0]));
 
+    }
+
+    public Pane printBoard(Stage stage) {
+        createGameBoard(stage);
+        return root;
+    }
+
+    public void combos() {
         for(int y = 0; y < 3; y++) {
             rounds.add(new Round(board[0][y], board[1][y], board[2][y]));
         }
@@ -95,8 +137,20 @@ public class Main extends Application {
         }
         rounds.add(new Round(board[0][0], board[1][1], board[2][2]));
         rounds.add(new Round(board[0][2], board[1][1], board[2][0]));
+    }
 
-        return root;
+    public void createMenu(Stage stage) {
+        Menu menuFile = new Menu("File");
+        Menu menuGame = new Menu("New Game");
+        MenuItem exit = new MenuItem("Exit");
+        menuFile.getItems().addAll(exit, menuGame);
+        menu.getMenus().add(menuFile);
+        exit.setOnAction(actionEvent -> Main.exit());
+        menuGame.setOnAction(actionEvent -> {
+            restartGame(board, stage);
+        });
+
+        root.getChildren().add(menu);
     }
 
     public void checkWinner() {
@@ -113,7 +167,6 @@ public class Main extends Application {
                 playCongratulationAnimation(round);
                 break;
             }
-
         }
     }
 
@@ -165,8 +218,10 @@ public class Main extends Application {
         timeline.play();
     }
 
-    public class Round {
+    public  class Round {
         public Tile[] tiles;
+
+
         public Round(Tile... tiles) { // 3 elements: Tile[0] is horizontal, Tile[1] is vertical, Tile [2] is diagonal
             this.tiles = tiles;
         }
@@ -212,7 +267,7 @@ public class Main extends Application {
     public class Tile extends StackPane {
         public Text text = new Text();
 
-        public Tile() throws Exception {
+        public Tile() {
             Rectangle chart = new Rectangle(200, 200, Color.GREEN);
             chart.setStroke(Color.WHITE);
             chart.setStrokeWidth(8);
@@ -226,7 +281,7 @@ public class Main extends Application {
         public void makeMove() {
             if(!gamePlayable)
                 return;
-           setOnMouseClicked(mouseEvent -> {
+            setOnMouseClicked(mouseEvent -> {
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && !(getValue().equals("O")) && !(getValue().equals("X"))) {
                     if (!playerXMovement) {
                         return;
@@ -235,15 +290,11 @@ public class Main extends Application {
                         playerMove();
                     }
                 }
-               if(!gamePlayable)
-                   return;
-               try {
-                   cpuMove(board);
-               } catch (Exception e) {
-                   e.printStackTrace();
-               }
-          });
-    }
+                if(!gamePlayable)
+                    return;
+                cpuMove(board);
+            });
+        }
 
         public void playerMove() {
             numberOfXMoves++;
@@ -253,7 +304,7 @@ public class Main extends Application {
             text.setText("X");
         }
 
-        public void cpuMove(Tile[][] tiles) throws Exception {
+        public void cpuMove(Tile[][] tiles){
             if(playerXMovement)
                 return;
             List <Tile> remainedTiles = new ArrayList<>();
@@ -275,25 +326,22 @@ public class Main extends Application {
             }
         }
 
-        public void clear(Tile[][] board, Tile[] tiles ) throws Exception {
+        public void clearBoard(Tile[][] board, Tile[] tiles ) {
             for(int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
+                    root.getChildren().clear();
                     board[i][j] = new Tile();
                     board[i][j].text.setText(" ");
-                    board[i][j].getChildren().clear(); // tutaj czyszczę board
-                    root.getChildren().clear();     // tutaj czyszczę children dla root
+                    board[i][j].getChildren().clear();
                 }
             }
+
             for (int i = 0; i < tiles.length; i++) {
                 tiles[i].text.setText(" ");
             }
             rounds = new ArrayList<>();
             gamePlayable = true;
             playerXMovement = true;
-            boolean gamePlayable = true;
-            MenuBar menu = new MenuBar();
-            int numberOfXMoves = 0;
-            int numberOfOMoves = 0;
         }
 
         public void drawX() {

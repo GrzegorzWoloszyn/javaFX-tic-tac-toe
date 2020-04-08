@@ -5,47 +5,23 @@
 //
 //public class Round {
 //
-//    Tile tile = new Tile();
-//    public int moveX = 0;
-//    public int moveO = 0;
-//    public int move = moveO + moveX;
-//    public Tile[] tiles;
-//    public boolean turnXOrY = true;
-//    public boolean playable = true;
-//    List<Round> rounds = new ArrayList<Round>();
+//    private final Tile[] tiles;
+//    GameDefinition gameDefinition;
 //
-//    public Round(Tile... tiles) {
+//    public Round(GameDefinition gameDefinition, Tile... tiles) {
+//        this.gameDefinition = gameDefinition;
 //        this.tiles = tiles;
 //    }
 //
-////    public void checkWinner() {
-////        for (Round round : rounds) {
-////            if(round.isWon()) {
-////                playable = false;
-////                tile.playCongratsAnimation(round);
-////                break;
-////            } playable = true;
-////        }
-////
-////    }
-//
-//    public boolean isWon() {
-//        if(tiles[0].getValue().isEmpty() || tiles[1].getValue().isEmpty() || tiles[2].getValue().isEmpty())
-//            return false;
-//
-//        return tiles[0].getValue().equals(tiles[1].getValue()) &&
-//                tiles[0].getValue().equals(tiles[2].getValue()) &&
-//                tiles[1].getValue().equals(tiles[2].getValue());
-//
-//    }
-//
-//    public String getWinnerSymbol(){
-//        String theWinner = "DRAW";
-//        if (isWon() || move >= 9) {
-//            theWinner = tiles[0].getValue();
-//
+//    public void combos() {
+//        for(int y = 0; y < 3; y++) {
+//            gameDefinition.getRounds().add(new Main.Round(gameDefinition.getBoard()[0][y], gameDefinition.getBoard()[1][y], gameDefinition.getBoard()[2][y]));
 //        }
-//        return theWinner;
+//        for(int x = 0; x < 3; x++) {
+//            gameDefinition.getRounds().add(new Main.Round(gameDefinition.getBoard()[x][0], gameDefinition.getBoard()[x][1], gameDefinition.getBoard()[x][2]));
+//        }
+//        gameDefinition.getRounds().add(new Main.Round(gameDefinition.getBoard()[0][0], gameDefinition.getBoard()[1][1], gameDefinition.getBoard()[2][2]));
+//        gameDefinition.getRounds().add(new Main.Round(gameDefinition.getBoard()[0][2], gameDefinition.getBoard()[1][1], gameDefinition.getBoard()[2][0]));
 //    }
 //
 //}
