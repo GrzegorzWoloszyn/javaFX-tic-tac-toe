@@ -52,7 +52,7 @@ public class Main extends Application {
     }
 
     void startGame(Stage stage) {
-        stage.setScene(new Scene(printBoard(stage)));
+        stage.setScene(new Scene(printBoard()));
         createMenu(stage);
         combos();
         stage.setTitle("TIC-TAC-TOE");
@@ -70,21 +70,19 @@ public class Main extends Application {
                 root.getChildren().clear();
                 board[i][j].getChildren().clear();
                 board[i][j].text.setText(" ");
-
             }
         }
-
         rounds = new ArrayList<>();
         gamePlayable = true;
         playerXMovement = true;
-        printBoard(stage);
+        printBoard();
         createMenu(stage);
         combos();
         stage.setTitle("TIC-TAC-TOE");
         stage.show();
     }
 
-    public void createGameBoard(Stage stage) {
+    public void createGameBoard() {
         root.setPrefSize(608, 608);
         root.setLayoutY(30);
         for(int row = 0; row < 3; row++) {
@@ -96,35 +94,10 @@ public class Main extends Application {
                 board[col][row] = tile;
             }
         }
-        //       createMenu(stage);
-//
-//        Menu menuFile = new Menu("File");
-//        MenuItem exit = new MenuItem("Exit");
-//        Menu menuGame = new Menu("New Game");
-//        menuFile.getItems().add(exit);
-//        menuFile.getItems().add(menuGame);
-//        menu.getMenus().addAll(menuFile);
-//        exit.setOnAction(actionEvent -> Main.exit());
-//        menuGame.setOnAction(actionEvent -> {
-//            restartGame(board, stage);
-//
-//        });
-//
-//        root.getChildren().add(menu);
-
-//        for(int y = 0; y < 3; y++) {
-//            rounds.add(new Round(board[0][y], board[1][y], board[2][y]));
-//        }
-//        for(int x = 0; x < 3; x++) {
-//            rounds.add(new Round(board[x][0], board[x][1], board[x][2]));
-//        }
-//        rounds.add(new Round(board[0][0], board[1][1], board[2][2]));
-//        rounds.add(new Round(board[0][2], board[1][1], board[2][0]));
-
     }
 
-    public Pane printBoard(Stage stage) {
-        createGameBoard(stage);
+    public Pane printBoard() {
+        createGameBoard();
         return root;
     }
 
@@ -201,7 +174,6 @@ public class Main extends Application {
     }
 
     public void prepareAnimationLine(Round round) {
-
         Line line = new Line();
         line.setStartX(round.tiles[0].getCentreX());
         line.setStartY(round.tiles[0].getCentreY());
@@ -220,7 +192,6 @@ public class Main extends Application {
 
     public  class Round {
         public Tile[] tiles;
-
 
         public Round(Tile... tiles) { // 3 elements: Tile[0] is horizontal, Tile[1] is vertical, Tile [2] is diagonal
             this.tiles = tiles;
