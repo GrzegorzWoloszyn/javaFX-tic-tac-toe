@@ -41,10 +41,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         startGame(primaryStage);
-//        primaryStage.initStyle(StageStyle.DECORATED);
-//        primaryStage.setScene(new Scene(createContent()));
-//        primaryStage.setTitle("TIC-TAC-TOE");
-//        primaryStage.show();
     }
 
     public static void main(String[] args) {
@@ -52,7 +48,8 @@ public class Main extends Application {
     }
 
     void startGame(Stage stage) {
-        stage.setScene(new Scene(printBoard()));
+        Scene scene = new Scene(createGameBoard());
+        stage.setScene(scene);
         createMenu(stage);
         combos();
         stage.setTitle("TIC-TAC-TOE");
@@ -75,14 +72,15 @@ public class Main extends Application {
         rounds = new ArrayList<>();
         gamePlayable = true;
         playerXMovement = true;
-        printBoard();
+        stage.setScene(new Scene(createGameBoard()));
         createMenu(stage);
         combos();
         stage.setTitle("TIC-TAC-TOE");
         stage.show();
+
     }
 
-    public void createGameBoard() {
+    public Pane createGameBoard() {
         root.setPrefSize(608, 608);
         root.setLayoutY(30);
         for(int row = 0; row < 3; row++) {
@@ -94,11 +92,7 @@ public class Main extends Application {
                 board[col][row] = tile;
             }
         }
-    }
-
-    public Pane printBoard() {
-        createGameBoard();
-        return root;
+        return new Pane(root);
     }
 
     public void combos() {
@@ -130,7 +124,7 @@ public class Main extends Application {
         for (Round round : rounds) {
             if(!round.isComplete()) {
                 gamePlayable = true;
-            } else if(!round.isComplete() && (numberOfOMoves + numberOfXMoves) == 9) {
+            } else if(!round.isComplete() && ((numberOfOMoves + numberOfXMoves) == 9)) {
                 gamePlayable = false;
                 playCongratulationAnimation(round);
                 break;
@@ -144,13 +138,8 @@ public class Main extends Application {
     }
 
     public void playCongratulationAnimation(Round round) {
-        if (!round.isComplete()) {
-            return;
-        }else {
-            gamePlayable = false;
             prepareAnimationLine(round);
             prepareGameStats(round);
-        }
     }
 
     public void prepareGameStats(Round round) {
@@ -206,7 +195,7 @@ public class Main extends Application {
 
         public String getWinnerSymbol(){
             String theWinner = "DRAW";
-            if (isComplete() || (numberOfOMoves + numberOfXMoves) == 9) {
+            if (isComplete() || ((numberOfOMoves + numberOfXMoves) == 9)) {
                 theWinner = tiles[0].getValue();
             }
             return theWinner;
