@@ -69,6 +69,7 @@ public class Main extends Application {
                 board[i][j].text.setText(" ");
             }
         }
+
         rounds = new ArrayList<>();
         gamePlayable = true;
         playerXMovement = true;
@@ -77,7 +78,6 @@ public class Main extends Application {
         combos();
         stage.setTitle("TIC-TAC-TOE");
         stage.show();
-
     }
 
     public Pane createGameBoard() {
@@ -116,7 +116,6 @@ public class Main extends Application {
         menuGame.setOnAction(actionEvent -> {
             restartGame(board, stage);
         });
-
         root.getChildren().add(menu);
     }
 
@@ -181,7 +180,6 @@ public class Main extends Application {
 
     public  class Round {
         public Tile[] tiles;
-
         public Round(Tile... tiles) { // 3 elements: Tile[0] is horizontal, Tile[1] is vertical, Tile [2] is diagonal
             this.tiles = tiles;
         }
