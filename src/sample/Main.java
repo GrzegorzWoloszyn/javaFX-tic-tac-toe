@@ -138,8 +138,8 @@ public class Main extends Application {
     }
 
     public void playCongratulationAnimation(Round round) {
-            prepareAnimationLine(round);
-            prepareGameStats(round);
+        prepareAnimationLine(round);
+        prepareGameStats(round);
     }
 
     public void prepareGameStats(Round round) {
